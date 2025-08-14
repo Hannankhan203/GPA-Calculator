@@ -1,8 +1,8 @@
-import Router from "./Router";
+import CustomRoute from "./CustomRoute";
 import "./App.css";
 
 const App = () => {
-  return <Router />
+  return <CustomRoute />
 }
 
 export default App;

@@ -5,7 +5,7 @@ import { useAuthStore } from "../../context/store";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
-const Login = () => {
+const ForgotPassword = () => {
   const navigate = useNavigate();
   const { setError } = useAuthStore();
   const [authError, setAuthError] = useState("");
