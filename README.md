@@ -74,7 +74,7 @@ gpa-calculator/
 │── public/
 │── package.json
 │── README.md
-
+```
 
 ---
 
@@ -97,6 +97,7 @@ _Add your screenshots or GIF demos here once developed._
 
 ## ⚙️ Installation & Setup
 
+```bash
 # Clone the repository
 git clone https://github.com/yourusername/gpa-calculator.git
 
@@ -108,4 +109,4 @@ npm install
 
 # Start the development server
 npm start
-
+```
