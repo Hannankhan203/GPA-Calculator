@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { auth, createUserWithEmailAndPassword, sendEmailVerification, db, addDoc } from "../../firebase";
+import { auth, createUserWithEmailAndPassword, sendEmailVerification, db, addDoc, doc, collection } from "../../firebase";
 import { useAuthStore } from "../../context/store";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
@@ -32,7 +32,7 @@ const Signup = () => {
         values.password
       );
       await sendEmailVerification(userCredential.user);
-      await addDoc(doc(db, "users", userCredential.user.uid), {
+      await addDoc(collection(db, "users"), {
         username: values.username,
         email: values.email,
         password: values.password,
