@@ -52,6 +52,7 @@ The application includes **authentication**, **protected routes**, **Firestore d
 
 ## 📂 Project Structure
 
+```bash
 gpa-calculator/
 │── src/
 │ ├── components/
