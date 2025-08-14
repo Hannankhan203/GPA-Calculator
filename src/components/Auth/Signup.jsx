@@ -1,32 +1,42 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { auth, signInWithEmailAndPassword } from "../../firebase";
+import { auth, createUserWithEmailAndPassword, sendEmailVerification, db, addDoc } from "../../firebase";
 import { useAuthStore } from "../../context/store";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
-const Login = () => {
+const Signup = () => {
   const navigate = useNavigate();
   const { setUser, setError } = useAuthStore();
   const [authError, setAuthError] = useState("");
 
   const initialValues = {
+    username: "",
     email: "",
     password: "",
+    confirmPassword: "",
   };
 
   const validationSchema = Yup.object({
+    username: Yup.string().required("Required"),
     email: Yup.string().email("Invalid email").required("Required"),
-    password: Yup.string().required("Required"),
+    password: Yup.string().min(6, "Must be at least 6 characters").required("Required"),
+    confirmPassword: Yup.string().oneOf([Yup.ref("password"), null], "Passwords must match").required("Required"),
   });
 
   const onSubmit = async (values) => {
     try {
-      const userCredential = await signInWithEmailAndPassword(
+      const userCredential = await createUserWithEmailAndPassword(
         auth,
         values.email,
         values.password
       );
+      await sendEmailVerification(userCredential.user);
+      await addDoc(doc(db, "users", userCredential.user.uid), {
+        username: values.username,
+        email: values.email,
+        password: values.password,
+      });
       setUser(userCredential.user);
       navigate("/dashboard");
     } catch (error) {
@@ -37,7 +47,7 @@ const Login = () => {
 
   return (
     <div className="auth-container">
-      <h2 className="auth-title">Login</h2>
+      <h2 className="auth-title">Sign Up</h2>
       {authError && <div className="error-message">{authError}</div>}
       <Formik
         initialValues={initialValues}
@@ -45,6 +55,11 @@ const Login = () => {
         onSubmit={onSubmit}
       >
         <Form className="auth-form">
+          <div className="form-group">
+            <label htmlFor="username">Username:</label>
+            <Field type="text" name="username" />
+            <ErrorMessage name="username" component="div" />
+          </div>
           <div className="form-group">
             <label htmlFor="email">Email:</label>
             <Field type="email" name="email" />
@@ -55,17 +70,19 @@ const Login = () => {
             <Field type="password" name="password" />
             <ErrorMessage name="password" component="div" />
           </div>
-          <button type="submit">Login</button>
+          <div className="form-group">
+            <label htmlFor="confirmPassword">Confirm Password:</label>
+            <Field type="password" name="confirmPassword" />
+            <ErrorMessage name="confirmPassword" component="div" />
+          </div>
+          <button type="submit">Sign Up</button>
         </Form>
       </Formik>
       <div className="auth-nav">
-        <Link to="/forgot-password">Forgot Password</Link>
-      </div>
-      <div className="auth-nav">
-        Don't have an account? <Link to="/signup">Sign Up</Link>
+        Already have an account? <Link to="/login">Login</Link>
       </div>
     </div>
   );
 };
 
-export default Login;
+export default Signup;

@@ -1,43 +1,42 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { auth, signInWithEmailAndPassword } from "../../firebase";
+import { auth, sendPasswordResetEmail } from "../../firebase";
 import { useAuthStore } from "../../context/store";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { setUser, setError } = useAuthStore();
+  const { setError } = useAuthStore();
   const [authError, setAuthError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const initialValues = {
     email: "",
-    password: "",
   };
 
   const validationSchema = Yup.object({
     email: Yup.string().email("Invalid email").required("Required"),
-    password: Yup.string().required("Required"),
   });
 
   const onSubmit = async (values) => {
     try {
-      const userCredential = await signInWithEmailAndPassword(
+      await sendPasswordResetEmail(
         auth,
         values.email,
-        values.password
       );
-      setUser(userCredential.user);
-      navigate("/dashboard");
+      setSuccess("Password reset email has been sent. Check your inbox");
+      setAuthError("")
     } catch (error) {
       setError(error.message);
       setAuthError(error.message);
+      setSuccess("")
     }
   };
 
   return (
     <div className="auth-container">
-      <h2 className="auth-title">Login</h2>
+      <h2 className="auth-title">Reset Password</h2>
       {authError && <div className="error-message">{authError}</div>}
       <Formik
         initialValues={initialValues}
@@ -50,22 +49,14 @@ const Login = () => {
             <Field type="email" name="email" />
             <ErrorMessage name="email" component="div" />
           </div>
-          <div className="form-group">
-            <label htmlFor="password">Password:</label>
-            <Field type="password" name="password" />
-            <ErrorMessage name="password" component="div" />
-          </div>
-          <button type="submit">Login</button>
+          <button type="submit">Reset Password</button>
         </Form>
       </Formik>
       <div className="auth-nav">
-        <Link to="/forgot-password">Forgot Password</Link>
-      </div>
-      <div className="auth-nav">
-        Don't have an account? <Link to="/signup">Sign Up</Link>
+        <Link to="/login">Back to Login</Link>
       </div>
     </div>
   );
 };
 
-export default Login;
+export default ForgotPassword;
