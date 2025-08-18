@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-export const useAuthStore = (set) => ({
+export const useAuthStore = create((set) => ({
   user: null,
   loading: true,
   error: null,
@@ -8,4 +8,4 @@ export const useAuthStore = (set) => ({
   setLoading: (loading) => set({ loading }),
   setError: (error) => set({ error }),
   logout: () => set({ user: null, loading: false, error: null }),
-});
+}));
