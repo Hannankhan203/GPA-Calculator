@@ -53,6 +53,7 @@ const SGPAForm = () => {
   const [sgpa, setSgpa] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [currentRecordId, setCurrentRecordId] = useState(null);
+  const [currentRecord, setCurrentRecord] = useState(null);
 
   const calculateSGPA = (subjects) => {
     let totalCreditHours = 0;
@@ -63,6 +64,7 @@ const SGPAForm = () => {
       totalCreditHours += parseFloat(subject.creditHours);
       totalGradePoints += parseFloat(subject.creditHours) * gradePoint;
     });
+
     return (totalGradePoints / totalCreditHours).toFixed(2);
   };
 
@@ -76,7 +78,7 @@ const SGPAForm = () => {
       subjects: values.subjects,
       sgpa: calculatedSGPA,
       type: "sgpa",
-      user: user.uid,
+      userId: user.uid,
       createdAt: new Date(),
     };
 
@@ -86,49 +88,55 @@ const SGPAForm = () => {
       } else {
         await addDoc(collection(db, "gpaRecords"), recordData);
       }
+      setEditMode(false);
+      setCurrentRecordId(null);
     } catch (error) {
-      console.error("Error saving record", error);
+      console.error("Error saving record:", error);
     }
   };
 
   const handleEditRecord = (record) => {
     setEditMode(true);
     setCurrentRecordId(record.id);
+    setCurrentRecord(record);
     setSgpa(record.sgpa);
-    return {
-      studentName: record.studentName,
-      semester: record.semester,
-      subjects: record.subjects,
-    };
   };
 
   return (
-    <div className="gpa-container">
+    <div>
       <Formik
-        initialValues={initialValues}
+        initialValues={
+          editMode
+            ? {
+                studentName: currentRecord?.studentName || "",
+                semester: currentRecord?.semester || "",
+                subjects: currentRecord?.subjects || [initialSubject],
+              }
+            : initialValues
+        }
         validationSchema={validationSchema}
         onSubmit={onSubmit}
-        enableReinitialize={editMode}
+        enableReinitialize={true}
       >
-        {({ values }) => (
-          <Form className="gpa-form">
-            <div className="gpa-form-group">
-              <label htmlFor="studentName">Student Name:</label>
+        {({ values, isSubmitting, resetForm }) => (
+          <Form>
+            <div>
+              <label>Student Name</label>
               <Field type="text" name="studentName" />
               <ErrorMessage name="studentName" component="div" />
             </div>
-            <div className="gpa-form-group">
-              <label htmlFor="semester">Semester:</label>
+            <div>
+              <label>Semester</label>
               <Field as="select" name="semester">
                 <option value="">Select Semester</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
+                <option value="1">Semester 1</option>
+                <option value="2">Semester 2</option>
+                <option value="3">Semester 3</option>
+                <option value="4">Semester 4</option>
+                <option value="5">Semester 5</option>
+                <option value="6">Semester 6</option>
+                <option value="7">Semester 7</option>
+                <option value="8">Semester 8</option>
               </Field>
               <ErrorMessage name="semester" component="div" />
             </div>
@@ -138,8 +146,8 @@ const SGPAForm = () => {
                   <h3>Subjects</h3>
                   {values.subjects.map((subject, index) => (
                     <div key={index}>
-                      <div className="gpa-form-group">
-                        <label htmlFor="subjectName">Subject Name:</label>
+                      <div>
+                        <label>Subject Name</label>
                         <Field
                           type="text"
                           name={`subjects.${index}.subjectName`}
@@ -149,8 +157,8 @@ const SGPAForm = () => {
                           component="div"
                         />
                       </div>
-                      <div className="gpa-form-group">
-                        <label htmlFor="creditHours">Credit Hours:</label>
+                      <div>
+                        <label>Credit Hours</label>
                         <Field
                           type="number"
                           name={`subjects.${index}.creditHours`}
@@ -160,15 +168,19 @@ const SGPAForm = () => {
                           component="div"
                         />
                       </div>
-                      <div className="gpa-form-group">
-                        <label htmlFor="marks">Marks:</label>
+                      <div>
+                        <label>Marks</label>
                         <Field type="number" name={`subjects.${index}.marks`} />
                         <ErrorMessage
                           name={`subjects.${index}.marks`}
                           component="div"
                         />
                       </div>
-                      <button type="button" onClick={() => remove(index)}>
+                      <button
+                        type="button"
+                        onClick={() => remove(index)}
+                        disabled={values.subjects.length <= 1}
+                      >
                         Remove
                       </button>
                     </div>
@@ -180,8 +192,18 @@ const SGPAForm = () => {
                 </div>
               )}
             </FieldArray>
-            <button type="submit">Calculate SGPA</button>
-            <button type="button" onClick={() => resetForm()}>
+            <button type="submit" disabled={isSubmitting}>
+              {editMode ? "Update" : "Calculate"} SGPA
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                resetForm();
+                setEditMode(false);
+                setCurrentRecordId(null);
+                setSgpa(null);
+              }}
+            >
               Reset
             </button>
           </Form>
@@ -190,9 +212,17 @@ const SGPAForm = () => {
       {sgpa && (
         <div>
           <h3>SGPA: {sgpa}</h3>
-          <button onClick={() => handleEditRecord(currentRecordId)}>
-            Edit
-          </button>
+          {editMode && (
+            <button
+              onClick={() => {
+                setEditMode(false);
+                setCurrentRecordId(null);
+                setSgpa(null);
+              }}
+            >
+              Cancel Edit
+            </button>
+          )}
         </div>
       )}
     </div>
