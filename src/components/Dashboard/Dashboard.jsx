@@ -8,12 +8,12 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("sgpa");
 
   return (
-    <div className="dashboard">
-      <h2 className="dashboard-title">Dashboard</h2>
+    <div>
+      <h2>Dashboard</h2>
       <Tabs
-        className="tabs"
         activeKey={activeTab}
         onSelect={(k) => setActiveTab(k)}
+        className="mb-3"
       >
         <Tab eventKey="sgpa" title="SGPA Calculator">
           <SGPAForm />
@@ -21,7 +21,7 @@ const Dashboard = () => {
         <Tab eventKey="cgpa" title="CGPA Calculator">
           <CGPAForm />
         </Tab>
-        <Tab eventKey="record" title="My Records">
+        <Tab eventKey="records" title="My Records">
           <GPAList />
         </Tab>
       </Tabs>
