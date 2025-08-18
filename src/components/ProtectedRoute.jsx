@@ -1,7 +1,7 @@
 import { Navigate } from "react-router-dom";
 import { useAuthStore } from "../context/store";
 
-export const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuthStore();
 
   if (loading) {
@@ -14,3 +14,5 @@ export const ProtectedRoute = ({ children }) => {
 
   return children;
 };
+
+export default ProtectedRoute;
