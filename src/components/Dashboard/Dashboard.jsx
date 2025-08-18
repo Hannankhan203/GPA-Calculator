@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Tab, Tabs } from "react-bootstrap";
 import SGPAForm from "./SGPAForm";
 import CGPAForm from "./CGPAForm";
 import GPAList from "./GPAList";
@@ -10,33 +11,48 @@ const Dashboard = () => {
     <div className="dashboard-container">
       <div className="dashboard-header">
         <h2 className="dashboard-title">GPA Dashboard</h2>
-      </div>
-      
-      <div className="dashboard-tabs">
-        <button
-          className={`tab-btn ${activeTab === "sgpa" ? "active" : ""}`}
-          onClick={() => setActiveTab("sgpa")}
-        >
-          SGPA Calculator
-        </button>
-        <button
-          className={`tab-btn ${activeTab === "cgpa" ? "active" : ""}`}
-          onClick={() => setActiveTab("cgpa")}
-        >
-          CGPA Calculator
-        </button>
-        <button
-          className={`tab-btn ${activeTab === "records" ? "active" : ""}`}
-          onClick={() => setActiveTab("records")}
-        >
-          My Records
-        </button>
+        <p className="dashboard-subtitle">
+          Track and calculate your academic performance
+        </p>
       </div>
 
-      <div className="tab-content">
-        {activeTab === "sgpa" && <SGPAForm />}
-        {activeTab === "cgpa" && <CGPAForm />}
-        {activeTab === "records" && <GPAList />}
+      <div className="dashboard-tabs">
+        <Tabs
+          activeKey={activeTab}
+          onSelect={(k) => setActiveTab(k)}
+          className="custom-tabs"
+        >
+          <Tab
+            eventKey="sgpa"
+            title={<span className="tab-title">SGPA Calculator</span>}
+          >
+            {activeTab === "sgpa" && (
+              <div className="tab-content">
+                <SGPAForm />
+              </div>
+            )}
+          </Tab>
+          <Tab
+            eventKey="cgpa"
+            title={<span className="tab-title">CGPA Calculator</span>}
+          >
+            {activeTab === "cgpa" && (
+              <div className="tab-content">
+                <CGPAForm />
+              </div>
+            )}
+          </Tab>
+          <Tab
+            eventKey="records"
+            title={<span className="tab-title">My Records</span>}
+          >
+            {activeTab === "records" && (
+              <div className="tab-content">
+                <GPAList />
+              </div>
+            )}
+          </Tab>
+        </Tabs>
       </div>
     </div>
   );

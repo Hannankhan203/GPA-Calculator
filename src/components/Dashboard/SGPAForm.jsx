@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Formik, Form, Field, FieldArray, ErrorMessage } from "formik";
-import { useAuthStore } from "../../context/store";
 import * as Yup from "yup";
-import { db, doc, setDoc, collection, addDoc } from "../../firebase";
+import { db } from "../../firebase";
+import { useAuthStore } from "../../context/store";
+import { doc, setDoc, collection, addDoc } from "firebase/firestore";
 
 const initialSubject = {
   subjectName: "",
@@ -53,7 +54,6 @@ const SGPAForm = () => {
   const [sgpa, setSgpa] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [currentRecordId, setCurrentRecordId] = useState(null);
-  const [currentRecord, setCurrentRecord] = useState(null);
 
   const calculateSGPA = (subjects) => {
     let totalCreditHours = 0;
@@ -88,8 +88,6 @@ const SGPAForm = () => {
       } else {
         await addDoc(collection(db, "gpaRecords"), recordData);
       }
-      setEditMode(false);
-      setCurrentRecordId(null);
     } catch (error) {
       console.error("Error saving record:", error);
     }
@@ -98,69 +96,59 @@ const SGPAForm = () => {
   const handleEditRecord = (record) => {
     setEditMode(true);
     setCurrentRecordId(record.id);
-    setCurrentRecord(record);
     setSgpa(record.sgpa);
+    return {
+      studentName: record.studentName,
+      semester: record.semester,
+      subjects: record.subjects,
+    };
   };
 
   return (
     <div className="sgpa-container">
-      <div className="sgpa-header">
-        <h2 className="sgpa-title">SGPA Calculator</h2>
-      </div>
-      
+      <h2 className="form-title">SGPA Calculator</h2>
       <Formik
-        initialValues={
-          editMode
-            ? {
-                studentName: currentRecord?.studentName || "",
-                semester: currentRecord?.semester || "",
-                subjects: currentRecord?.subjects || [initialSubject],
-              }
-            : initialValues
-        }
+        initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={onSubmit}
-        enableReinitialize={true}
+        enableReinitialize={editMode}
       >
-        {({ values, isSubmitting, resetForm }) => (
+        {({ values, resetForm }) => (
           <Form className="sgpa-form">
-            <div className="form-section">
-              <div className="form-group">
-                <label className="form-label">Student Name</label>
-                <Field 
-                  type="text" 
-                  name="studentName" 
-                  className="form-input"
-                />
-                <ErrorMessage name="studentName" component="div" className="error-message" />
-              </div>
-              
-              <div className="form-group">
-                <label className="form-label">Semester</label>
-                <Field 
-                  as="select" 
-                  name="semester" 
-                  className="form-select"
-                >
-                  <option value="">Select Semester</option>
-                  <option value="1">Semester 1</option>
-                  <option value="2">Semester 2</option>
-                  <option value="3">Semester 3</option>
-                  <option value="4">Semester 4</option>
-                  <option value="5">Semester 5</option>
-                  <option value="6">Semester 6</option>
-                  <option value="7">Semester 7</option>
-                  <option value="8">Semester 8</option>
-                </Field>
-                <ErrorMessage name="semester" component="div" className="error-message" />
-              </div>
+            <div className="form-group">
+              <label className="form-label">Student Name</label>
+              <Field type="text" name="studentName" className="form-input" />
+              <ErrorMessage
+                name="studentName"
+                component="div"
+                className="error-message"
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Semester</label>
+              <Field as="select" name="semester" className="form-select">
+                <option value="">Select Semester</option>
+                <option value="1">Semester 1</option>
+                <option value="2">Semester 2</option>
+                <option value="3">Semester 3</option>
+                <option value="4">Semester 4</option>
+                <option value="5">Semester 5</option>
+                <option value="6">Semester 6</option>
+                <option value="7">Semester 7</option>
+                <option value="8">Semester 8</option>
+              </Field>
+              <ErrorMessage
+                name="semester"
+                component="div"
+                className="error-message"
+              />
             </div>
 
             <FieldArray name="subjects">
               {({ push, remove }) => (
-                <div className="subjects-section">
+                <div className="subjects-container">
                   <h3 className="section-title">Subjects</h3>
-                  
                   {values.subjects.map((subject, index) => (
                     <div key={index} className="subject-card">
                       <div className="form-group">
@@ -176,7 +164,7 @@ const SGPAForm = () => {
                           className="error-message"
                         />
                       </div>
-                      
+
                       <div className="form-group">
                         <label className="form-label">Credit Hours</label>
                         <Field
@@ -190,12 +178,12 @@ const SGPAForm = () => {
                           className="error-message"
                         />
                       </div>
-                      
+
                       <div className="form-group">
                         <label className="form-label">Marks</label>
-                        <Field 
-                          type="number" 
-                          name={`subjects.${index}.marks`} 
+                        <Field
+                          type="number"
+                          name={`subjects.${index}.marks`}
                           className="form-input"
                         />
                         <ErrorMessage
@@ -204,51 +192,46 @@ const SGPAForm = () => {
                           className="error-message"
                         />
                       </div>
-                      
-                      <button
-                        type="button"
-                        onClick={() => remove(index)}
-                        disabled={values.subjects.length <= 1}
-                        className="remove-btn"
-                      >
-                        Remove Subject
-                      </button>
+
+                      {values.subjects.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => remove(index)}
+                          className="remove-button"
+                        >
+                          Remove Subject
+                        </button>
+                      )}
                     </div>
                   ))}
-                  
-                  <button 
-                    type="button" 
+
+                  <button
+                    type="button"
                     onClick={() => push(initialSubject)}
-                    className="add-btn"
+                    className="add-button"
                   >
-                    Add Subject
+                    + Add Subject
                   </button>
-                  
-                  <ErrorMessage name="subjects" component="div" className="error-message" />
+
+                  <ErrorMessage
+                    name="subjects"
+                    component="div"
+                    className="error-message"
+                  />
                 </div>
               )}
             </FieldArray>
 
             <div className="action-buttons">
-              <button 
-                type="submit" 
-                disabled={isSubmitting}
-                className="submit-btn"
-              >
-                {editMode ? "Update" : "Calculate"} SGPA
+              <button type="submit" className="submit-button">
+                {editMode ? "Update Record" : "Calculate SGPA"}
               </button>
-              
               <button
                 type="button"
-                onClick={() => {
-                  resetForm();
-                  setEditMode(false);
-                  setCurrentRecordId(null);
-                  setSgpa(null);
-                }}
-                className="reset-btn"
+                onClick={() => resetForm()}
+                className="reset-button"
               >
-                Reset
+                Reset Form
               </button>
             </div>
           </Form>
@@ -257,8 +240,9 @@ const SGPAForm = () => {
 
       {sgpa && (
         <div className="result-container">
-          <h3 className="result-title">Your SGPA</h3>
-          <div className="result-value">{sgpa}</div>
+          <h3 className="result-title">
+            Your SGPA: <span className="result-value">{sgpa}</span>
+          </h3>
           {editMode && (
             <button
               onClick={() => {
@@ -266,7 +250,7 @@ const SGPAForm = () => {
                 setCurrentRecordId(null);
                 setSgpa(null);
               }}
-              className="cancel-btn"
+              className="cancel-edit-button"
             >
               Cancel Edit
             </button>

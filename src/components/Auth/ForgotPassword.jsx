@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { auth } from "../../firebase";
 import { sendPasswordResetEmail } from "firebase/auth";
+import { auth } from "../../firebase";
 import { useAuthStore } from "../../context/store";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
@@ -23,9 +23,8 @@ const ForgotPassword = () => {
   const onSubmit = async (values) => {
     try {
       await sendPasswordResetEmail(auth, values.email);
-      setSuccess("Password reset email has been sent. Check your inbox");
+      setSuccess("Password reset email sent. Check your inbox.");
       setAuthError("");
-      setError("");
     } catch (error) {
       setAuthError(error.message);
       setError(error.message);
@@ -34,30 +33,50 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="auth-container">
-      <h2 className="auth-title">Reset Password</h2>
-      {authError && <div className="error-message">{authError}</div>}
-      {success && <div className="success-message">{success}</div>}
-      <Formik
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-        onSubmit={onSubmit}
-      >
-        {({ isSubmitting }) => (
-          <Form className="auth-form">
-            <div className="form-group">
-              <label htmlFor="email">Email:</label>
-              <Field type="email" name="email" />
-              <ErrorMessage name="email" component="div" className="error-message" />
-            </div>
-            <button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Sending..." : "Reset Password"}
-            </button>
-          </Form>
-        )}
-      </Formik>
-      <div className="auth-nav">
-        <Link to="/login">Back to Login</Link>
+    <div className="forgot-password-container">
+      <div className="forgot-password-card">
+        <h2 className="forgot-password-title">Forgot Password</h2>
+        {authError && <div className="auth-error-message">{authError}</div>}
+        {success && <div className="auth-success-message">{success}</div>}
+
+        <Formik
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={onSubmit}
+        >
+          {({ isSubmitting }) => (
+            <Form className="forgot-password-form">
+              <div className="form-group">
+                <label className="form-label">Email</label>
+                <Field
+                  type="email"
+                  name="email"
+                  className="form-input"
+                  placeholder="Enter your email"
+                />
+                <ErrorMessage
+                  name="email"
+                  component="div"
+                  className="error-message"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="submit-button"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Sending..." : "Reset Password"}
+              </button>
+            </Form>
+          )}
+        </Formik>
+
+        <div className="back-to-login">
+          <Link to="/login" className="back-link">
+            Back to Login
+          </Link>
+        </div>
       </div>
     </div>
   );
