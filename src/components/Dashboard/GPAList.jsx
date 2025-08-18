@@ -25,7 +25,7 @@ const GPAList = () => {
           where("userId", "==", user.uid)
         );
         const querySnapshot = await getDocs(q);
-        const recordsData = querySnapshot.docs((doc) => ({
+        const recordsData = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
@@ -48,13 +48,17 @@ const GPAList = () => {
     }
   };
 
+  const handleEditRecord = (record) => {
+    console.log("Edit record:", record);
+  };
+
   if (loading) return <div>Loading...</div>;
 
   return (
     <div>
       <h3>My GPA Records</h3>
       {records.length === 0 ? (
-        <div>No record found</div>
+        <div>No records found</div>
       ) : (
         <ul className="gpa-list">
           {records.map((record) => (
@@ -77,14 +81,14 @@ const GPAList = () => {
               ) : (
                 <div>
                   <strong>CGPA: </strong>
-                  {record.cgpa}
+                    {record.cgpa}
                 </div>
               )}
               <div>
                 <strong>Date: </strong>
-                {record.createdAt.toDate().toLocaleString()}
+                {record.createdAt?.toDate().toLocaleString()}
               </div>
-              <button onClick={() => handlEditRecord(record)}>Edit</button>
+              <button onClick={() => handleEditRecord(record)}>Edit</button>
               <button onClick={() => handleDelete(record.id)}>Delete</button>
             </li>
           ))}
