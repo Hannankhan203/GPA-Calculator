@@ -11,7 +11,7 @@ const initialSemester = {
 };
 
 const initialValues = {
-  studentNam: "",
+  studentName: "",
   semesters: [initialSemester],
 };
 
@@ -38,21 +38,22 @@ const CGPAForm = () => {
   const [cgpa, setCgpa] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [currentRecordId, setCurrentRecordId] = useState(null);
+  const [currentRecord, setCurrentRecord] = useState(null);
 
   const calculateCGPA = (semesters) => {
     let totalCreditHours = 0;
-    let totalWeightedCGPA = 0;
+    let totalWeightedSGPA = 0;
 
     semesters.forEach((semester) => {
-      totalCreditHours = parseFloat(semester.creditHours);
-      totalWeightedCGPA =
+      totalCreditHours += parseFloat(semester.creditHours);
+      totalWeightedSGPA +=
         parseFloat(semester.creditHours) * parseFloat(semester.sgpa);
     });
 
-    return (totalWeightedCGPA / totalCreditHours).toFixed(2);
+    return (totalWeightedSGPA / totalCreditHours).toFixed(2);
   };
 
-  const onSubmit = async (validateYupSchema, { resetForm }) => {
+  const onSubmit = async (values, { resetForm }) => {
     const calculatedCGPA = calculateCGPA(values.semesters);
     setCgpa(calculatedCGPA);
 
@@ -71,33 +72,39 @@ const CGPAForm = () => {
       } else {
         await addDoc(collection(db, "gpaRecords"), recordData);
       }
+      setEditMode(false);
+      setCurrentRecordId(null);
     } catch (error) {
-      console.error("Error saving record", error);
+      console.error("Error saving record:", error);
     }
   };
 
   const handleEditRecord = (record) => {
     setEditMode(true);
     setCurrentRecordId(record.id);
+    setCurrentRecord(record);
     setCgpa(record.cgpa);
-    return {
-      studentName: record.studentName,
-      semesters: record.semesters,
-    };
   };
 
   return (
-    <div className="gpa-container">
+    <div>
       <Formik
-        initialValues={initialValues}
+        initialValues={
+          editMode
+            ? {
+                studentName: currentRecord?.studentName || "",
+                semesters: currentRecord?.semesters || [initialSemester],
+              }
+            : initialValues
+        }
         validationSchema={validationSchema}
         onSubmit={onSubmit}
-        enableReinitialize={editMode}
+        enableReinitialize={true}
       >
-        {({ values }) => (
-          <Form className="gpa-form">
-            <div className="gpa-form-group">
-              <label htmlFor="studentName">Student Name:</label>
+        {({ values, isSubmitting, resetForm }) => (
+          <Form>
+            <div>
+              <label>Student Name</label>
               <Field type="text" name="studentName" />
               <ErrorMessage name="studentName" component="div" />
             </div>
@@ -107,8 +114,8 @@ const CGPAForm = () => {
                   <h3>Semesters</h3>
                   {values.semesters.map((semester, index) => (
                     <div key={index}>
-                      <div className="gpa-form-group">
-                        <label htmlFor="semesterName">Semester Name:</label>
+                      <div>
+                        <label>Semester Name</label>
                         <Field
                           type="text"
                           name={`semesters.${index}.semesterName`}
@@ -118,8 +125,8 @@ const CGPAForm = () => {
                           component="div"
                         />
                       </div>
-                      <div className="gpa-form-group">
-                        <label htmlFor="creditHours">Credit Hours:</label>
+                      <div>
+                        <label>Credit Hours</label>
                         <Field
                           type="number"
                           name={`semesters.${index}.creditHours`}
@@ -129,19 +136,23 @@ const CGPAForm = () => {
                           component="div"
                         />
                       </div>
-                      <div className="gpa-form-group">
-                        <label htmlFor="sgpa">SGPA</label>
+                      <div>
+                        <label>SGPA</label>
                         <Field
                           type="number"
                           step="0.01"
-                          name={`semester.${index}.sgpa`}
+                          name={`semesters.${index}.sgpa`}
                         />
                         <ErrorMessage
                           name={`semesters.${index}.sgpa`}
                           component="div"
                         />
                       </div>
-                      <button type="button" onClick={() => remove(index)}>
+                      <button
+                        type="button"
+                        onClick={() => remove(index)}
+                        disabled={values.semesters.length <= 1}
+                      >
                         Remove
                       </button>
                     </div>
@@ -153,8 +164,18 @@ const CGPAForm = () => {
                 </div>
               )}
             </FieldArray>
-            <button type="submit">Calculate CGPA</button>
-            <button type="button" onClick={() => resetForm()}>
+            <button type="submit" disabled={isSubmitting}>
+              {editMode ? "Update" : "Calculate"} CGPA
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                resetForm();
+                setEditMode(false);
+                setCurrentRecordId(null);
+                setCgpa(null);
+              }}
+            >
               Reset
             </button>
           </Form>
@@ -163,9 +184,17 @@ const CGPAForm = () => {
       {cgpa && (
         <div>
           <h3>CGPA: {cgpa}</h3>
-          <button onClick={() => handleEditRecord(currentRecordId)}>
-            Edit
-          </button>
+          {editMode && (
+            <button
+              onClick={() => {
+                setEditMode(false);
+                setCurrentRecordId(null);
+                setCgpa(null);
+              }}
+            >
+              Cancel Edit
+            </button>
+          )}
         </div>
       )}
     </div>
