@@ -25,7 +25,7 @@ const ForgotPassword = () => {
       await sendPasswordResetEmail(auth, values.email);
       setSuccess("Password reset email has been sent. Check your inbox");
       setAuthError("");
-      setError(""); // Clear any previous errors
+      setError("");
     } catch (error) {
       setAuthError(error.message);
       setError(error.message);
