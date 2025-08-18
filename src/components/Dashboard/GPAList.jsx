@@ -52,44 +52,58 @@ const GPAList = () => {
     console.log("Edit record:", record);
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div className="loading-spinner">Loading...</div>;
 
   return (
-    <div>
-      <h3>My GPA Records</h3>
+    <div className="gpa-records-container">
+      <h3 className="records-title">My GPA Records</h3>
       {records.length === 0 ? (
-        <div>No records found</div>
+        <div className="no-records">No records found</div>
       ) : (
-        <ul className="gpa-list">
+        <ul className="records-list">
           {records.map((record) => (
-            <li key={record.id}>
-              <div>
-                <strong>Student: </strong>
-                {record.studentName}
+            <li key={record.id} className="record-card">
+              <div className="record-field">
+                <strong className="field-label">Student: </strong>
+                <span className="field-value">{record.studentName}</span>
               </div>
               {record.type === "sgpa" ? (
                 <>
-                  <div>
-                    <strong>Semester: </strong>
-                    {record.semester}
+                  <div className="record-field">
+                    <strong className="field-label">Semester: </strong>
+                    <span className="field-value">{record.semester}</span>
                   </div>
-                  <div>
-                    <strong>SGPA: </strong>
-                    {record.sgpa}
+                  <div className="record-field">
+                    <strong className="field-label">SGPA: </strong>
+                    <span className="field-value highlight">{record.sgpa}</span>
                   </div>
                 </>
               ) : (
-                <div>
-                  <strong>CGPA: </strong>
-                    {record.cgpa}
+                <div className="record-field">
+                  <strong className="field-label">CGPA: </strong>
+                  <span className="field-value highlight">{record.cgpa}</span>
                 </div>
               )}
-              <div>
-                <strong>Date: </strong>
-                {record.createdAt?.toDate().toLocaleString()}
+              <div className="record-field">
+                <strong className="field-label">Date: </strong>
+                <span className="field-value">
+                  {record.createdAt?.toDate().toLocaleString()}
+                </span>
               </div>
-              <button onClick={() => handleEditRecord(record)}>Edit</button>
-              <button onClick={() => handleDelete(record.id)}>Delete</button>
+              <div className="record-actions">
+                <button 
+                  onClick={() => handleEditRecord(record)}
+                  className="edit-btn"
+                >
+                  Edit
+                </button>
+                <button 
+                  onClick={() => handleDelete(record.id)}
+                  className="delete-btn"
+                >
+                  Delete
+                </button>
+              </div>
             </li>
           ))}
         </ul>

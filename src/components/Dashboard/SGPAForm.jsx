@@ -103,7 +103,11 @@ const SGPAForm = () => {
   };
 
   return (
-    <div>
+    <div className="sgpa-container">
+      <div className="sgpa-header">
+        <h2 className="sgpa-title">SGPA Calculator</h2>
+      </div>
+      
       <Formik
         initialValues={
           editMode
@@ -119,99 +123,142 @@ const SGPAForm = () => {
         enableReinitialize={true}
       >
         {({ values, isSubmitting, resetForm }) => (
-          <Form>
-            <div>
-              <label>Student Name</label>
-              <Field type="text" name="studentName" />
-              <ErrorMessage name="studentName" component="div" />
+          <Form className="sgpa-form">
+            <div className="form-section">
+              <div className="form-group">
+                <label className="form-label">Student Name</label>
+                <Field 
+                  type="text" 
+                  name="studentName" 
+                  className="form-input"
+                />
+                <ErrorMessage name="studentName" component="div" className="error-message" />
+              </div>
+              
+              <div className="form-group">
+                <label className="form-label">Semester</label>
+                <Field 
+                  as="select" 
+                  name="semester" 
+                  className="form-select"
+                >
+                  <option value="">Select Semester</option>
+                  <option value="1">Semester 1</option>
+                  <option value="2">Semester 2</option>
+                  <option value="3">Semester 3</option>
+                  <option value="4">Semester 4</option>
+                  <option value="5">Semester 5</option>
+                  <option value="6">Semester 6</option>
+                  <option value="7">Semester 7</option>
+                  <option value="8">Semester 8</option>
+                </Field>
+                <ErrorMessage name="semester" component="div" className="error-message" />
+              </div>
             </div>
-            <div>
-              <label>Semester</label>
-              <Field as="select" name="semester">
-                <option value="">Select Semester</option>
-                <option value="1">Semester 1</option>
-                <option value="2">Semester 2</option>
-                <option value="3">Semester 3</option>
-                <option value="4">Semester 4</option>
-                <option value="5">Semester 5</option>
-                <option value="6">Semester 6</option>
-                <option value="7">Semester 7</option>
-                <option value="8">Semester 8</option>
-              </Field>
-              <ErrorMessage name="semester" component="div" />
-            </div>
+
             <FieldArray name="subjects">
               {({ push, remove }) => (
-                <div>
-                  <h3>Subjects</h3>
+                <div className="subjects-section">
+                  <h3 className="section-title">Subjects</h3>
+                  
                   {values.subjects.map((subject, index) => (
-                    <div key={index}>
-                      <div>
-                        <label>Subject Name</label>
+                    <div key={index} className="subject-card">
+                      <div className="form-group">
+                        <label className="form-label">Subject Name</label>
                         <Field
                           type="text"
                           name={`subjects.${index}.subjectName`}
+                          className="form-input"
                         />
                         <ErrorMessage
                           name={`subjects.${index}.subjectName`}
                           component="div"
+                          className="error-message"
                         />
                       </div>
-                      <div>
-                        <label>Credit Hours</label>
+                      
+                      <div className="form-group">
+                        <label className="form-label">Credit Hours</label>
                         <Field
                           type="number"
                           name={`subjects.${index}.creditHours`}
+                          className="form-input"
                         />
                         <ErrorMessage
                           name={`subjects.${index}.creditHours`}
                           component="div"
+                          className="error-message"
                         />
                       </div>
-                      <div>
-                        <label>Marks</label>
-                        <Field type="number" name={`subjects.${index}.marks`} />
+                      
+                      <div className="form-group">
+                        <label className="form-label">Marks</label>
+                        <Field 
+                          type="number" 
+                          name={`subjects.${index}.marks`} 
+                          className="form-input"
+                        />
                         <ErrorMessage
                           name={`subjects.${index}.marks`}
                           component="div"
+                          className="error-message"
                         />
                       </div>
+                      
                       <button
                         type="button"
                         onClick={() => remove(index)}
                         disabled={values.subjects.length <= 1}
+                        className="remove-btn"
                       >
-                        Remove
+                        Remove Subject
                       </button>
                     </div>
                   ))}
-                  <button type="button" onClick={() => push(initialSubject)}>
+                  
+                  <button 
+                    type="button" 
+                    onClick={() => push(initialSubject)}
+                    className="add-btn"
+                  >
                     Add Subject
                   </button>
-                  <ErrorMessage name="subjects" component="div" />
+                  
+                  <ErrorMessage name="subjects" component="div" className="error-message" />
                 </div>
               )}
             </FieldArray>
-            <button type="submit" disabled={isSubmitting}>
-              {editMode ? "Update" : "Calculate"} SGPA
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                resetForm();
-                setEditMode(false);
-                setCurrentRecordId(null);
-                setSgpa(null);
-              }}
-            >
-              Reset
-            </button>
+
+            <div className="action-buttons">
+              <button 
+                type="submit" 
+                disabled={isSubmitting}
+                className="submit-btn"
+              >
+                {editMode ? "Update" : "Calculate"} SGPA
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => {
+                  resetForm();
+                  setEditMode(false);
+                  setCurrentRecordId(null);
+                  setSgpa(null);
+                }}
+                className="reset-btn"
+              >
+                Reset
+              </button>
+            </div>
           </Form>
         )}
       </Formik>
+
       {sgpa && (
-        <div>
-          <h3>SGPA: {sgpa}</h3>
+        <div className="result-container">
+          <h3 className="result-title">Your SGPA</h3>
+          <div className="result-value">{sgpa}</div>
           {editMode && (
             <button
               onClick={() => {
@@ -219,6 +266,7 @@ const SGPAForm = () => {
                 setCurrentRecordId(null);
                 setSgpa(null);
               }}
+              className="cancel-btn"
             >
               Cancel Edit
             </button>

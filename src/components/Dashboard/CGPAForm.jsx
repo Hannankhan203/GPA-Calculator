@@ -87,7 +87,11 @@ const CGPAForm = () => {
   };
 
   return (
-    <div>
+    <div className="cgpa-container">
+      <div className="cgpa-header">
+        <h2 className="cgpa-title">CGPA Calculator</h2>
+      </div>
+
       <Formik
         initialValues={
           editMode
@@ -102,88 +106,127 @@ const CGPAForm = () => {
         enableReinitialize={true}
       >
         {({ values, isSubmitting, resetForm }) => (
-          <Form>
-            <div>
-              <label>Student Name</label>
-              <Field type="text" name="studentName" />
-              <ErrorMessage name="studentName" component="div" />
+          <Form className="cgpa-form">
+            <div className="form-section">
+              <div className="form-group">
+                <label className="form-label">Student Name</label>
+                <Field type="text" name="studentName" className="form-input" />
+                <ErrorMessage
+                  name="studentName"
+                  component="div"
+                  className="error-message"
+                />
+              </div>
             </div>
+
             <FieldArray name="semesters">
               {({ push, remove }) => (
-                <div>
-                  <h3>Semesters</h3>
+                <div className="semesters-section">
+                  <h3 className="section-title">Semesters</h3>
+
                   {values.semesters.map((semester, index) => (
-                    <div key={index}>
-                      <div>
-                        <label>Semester Name</label>
+                    <div key={index} className="semester-card">
+                      <div className="form-group">
+                        <label className="form-label">Semester Name</label>
                         <Field
                           type="text"
                           name={`semesters.${index}.semesterName`}
+                          className="form-input"
                         />
                         <ErrorMessage
                           name={`semesters.${index}.semesterName`}
                           component="div"
+                          className="error-message"
                         />
                       </div>
-                      <div>
-                        <label>Credit Hours</label>
+
+                      <div className="form-group">
+                        <label className="form-label">Credit Hours</label>
                         <Field
                           type="number"
                           name={`semesters.${index}.creditHours`}
+                          className="form-input"
                         />
                         <ErrorMessage
                           name={`semesters.${index}.creditHours`}
                           component="div"
+                          className="error-message"
                         />
                       </div>
-                      <div>
-                        <label>SGPA</label>
+
+                      <div className="form-group">
+                        <label className="form-label">SGPA</label>
                         <Field
                           type="number"
                           step="0.01"
                           name={`semesters.${index}.sgpa`}
+                          className="form-input"
                         />
                         <ErrorMessage
                           name={`semesters.${index}.sgpa`}
                           component="div"
+                          className="error-message"
                         />
                       </div>
+
                       <button
                         type="button"
                         onClick={() => remove(index)}
                         disabled={values.semesters.length <= 1}
+                        className="remove-btn"
                       >
-                        Remove
+                        Remove Semester
                       </button>
                     </div>
                   ))}
-                  <button type="button" onClick={() => push(initialSemester)}>
+
+                  <button
+                    type="button"
+                    onClick={() => push(initialSemester)}
+                    className="add-btn"
+                  >
                     Add Semester
                   </button>
-                  <ErrorMessage name="semesters" component="div" />
+
+                  <ErrorMessage
+                    name="semesters"
+                    component="div"
+                    className="error-message"
+                  />
                 </div>
               )}
             </FieldArray>
-            <button type="submit" disabled={isSubmitting}>
-              {editMode ? "Update" : "Calculate"} CGPA
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                resetForm();
-                setEditMode(false);
-                setCurrentRecordId(null);
-                setCgpa(null);
-              }}
-            >
-              Reset
-            </button>
+
+            <div className="action-buttons">
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="submit-btn"
+              >
+                {editMode ? "Update" : "Calculate"} CGPA
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  resetForm();
+                  setEditMode(false);
+                  setCurrentRecordId(null);
+                  setCgpa(null);
+                }}
+                className="reset-btn"
+              >
+                Reset
+              </button>
+            </div>
           </Form>
         )}
       </Formik>
+
       {cgpa && (
-        <div>
-          <h3>CGPA: {cgpa}</h3>
+        <div className="result-container">
+          <h3 className="result-title">Your CGPA</h3>
+          <div className="result-value">{cgpa}</div>
           {editMode && (
             <button
               onClick={() => {
@@ -191,6 +234,7 @@ const CGPAForm = () => {
                 setCurrentRecordId(null);
                 setCgpa(null);
               }}
+              className="cancel-btn"
             >
               Cancel Edit
             </button>

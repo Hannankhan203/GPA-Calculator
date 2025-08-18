@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Tab, Tabs } from "react-bootstrap";
 import SGPAForm from "./SGPAForm";
 import CGPAForm from "./CGPAForm";
 import GPAList from "./GPAList";
@@ -8,23 +7,37 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("sgpa");
 
   return (
-    <div>
-      <h2>Dashboard</h2>
-      <Tabs
-        activeKey={activeTab}
-        onSelect={(k) => setActiveTab(k)}
-        className="mb-3"
-      >
-        <Tab eventKey="sgpa" title="SGPA Calculator">
-          <SGPAForm />
-        </Tab>
-        <Tab eventKey="cgpa" title="CGPA Calculator">
-          <CGPAForm />
-        </Tab>
-        <Tab eventKey="records" title="My Records">
-          <GPAList />
-        </Tab>
-      </Tabs>
+    <div className="dashboard-container">
+      <div className="dashboard-header">
+        <h2 className="dashboard-title">GPA Dashboard</h2>
+      </div>
+      
+      <div className="dashboard-tabs">
+        <button
+          className={`tab-btn ${activeTab === "sgpa" ? "active" : ""}`}
+          onClick={() => setActiveTab("sgpa")}
+        >
+          SGPA Calculator
+        </button>
+        <button
+          className={`tab-btn ${activeTab === "cgpa" ? "active" : ""}`}
+          onClick={() => setActiveTab("cgpa")}
+        >
+          CGPA Calculator
+        </button>
+        <button
+          className={`tab-btn ${activeTab === "records" ? "active" : ""}`}
+          onClick={() => setActiveTab("records")}
+        >
+          My Records
+        </button>
+      </div>
+
+      <div className="tab-content">
+        {activeTab === "sgpa" && <SGPAForm />}
+        {activeTab === "cgpa" && <CGPAForm />}
+        {activeTab === "records" && <GPAList />}
+      </div>
     </div>
   );
 };
